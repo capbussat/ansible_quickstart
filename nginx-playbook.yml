@@ -1,0 +1,41 @@
+---
+# Aquest fitxer és nginx-playbook.yml
+# Exemple d'ús:
+# ansible-playbook -i inventory.ini nginx-playbook.yml -K
+# inventory.ini conté la llista de webservers
+# -K és equivalent a  --ask-become-pass
+# -k és equivalent a --ask-pass per fer sudo.
+# Si tenim generades al control i copiades al node les claus ssh no cal demanar-lo.
+
+- name: Check nginx servers
+  hosts: webservers
+  gather_facts: true
+
+  # become
+  become: true
+  tasks:
+  # name sempre comença per majúscula
+  # FQCN prefereix ansible.builtin.app en comptes de apt
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+    - name: Ensure nginx is installed
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+      notify:
+        - Restart nginx # les notificacions només activen el handler si es compleix l'anterior
+    - name: Check nginx version
+      ansible.builtin.command: "nginx -v"
+      register: version_output
+      changed_when: false
+      failed_when: "'1.24' not in version_output.stderr"
+      ignore_errors: true # Segueix executant el playbook encara que la versió no coincideixi
+
+# Es pot posar la descripció de la notificació o una comnda 'listen' a sota en el handler
+  handlers:
+    - name: Restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted

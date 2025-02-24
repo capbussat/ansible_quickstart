@@ -1,0 +1,14 @@
+---
+- name: Example Register Variable and Conditional Playbook
+  hosts: all
+  tasks:
+
+   - name: Register variable
+     ansible.builtin.command: cat /etc/hosts
+     changed_when: false
+     register: hosts_contents
+
+   - name: Check if hosts file contains the word "localhost"
+     ansible.builtin.debug:
+      msg: "/etc/hosts file contains the word localhost"
+     when: hosts_contents.stdout.find("localhost") != -1

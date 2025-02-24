@@ -1,0 +1,17 @@
+---
+- name: Example Simple Variable
+  hosts: all
+  become: yes
+  vars:
+    username: bob
+
+  tasks:
+  - name: Delete the user {{ username }}  # jinja2 template ho substitueix
+    ansible.builtin.user:
+      name: "{{ username }}"
+      state: absent
+      remove: yes
+
+# Add the user
+# state: present
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/user_module.html#examples

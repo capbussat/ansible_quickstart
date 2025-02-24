@@ -1,0 +1,14 @@
+---
+- name: Find packettracer
+  hosts: all
+  tasks:
+
+   - name: Register variable
+     ansible.builtin.command: dpkg --get-selections packettracer wireshark iperf3
+     changed_when: false
+     register: found_contents
+
+   - name: Check if hosts file contains the word "install"
+     ansible.builtin.debug:
+      msg: "Found packettracer"
+     when: found_contents.stdout.find("install") != -1

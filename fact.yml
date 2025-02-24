@@ -1,0 +1,65 @@
+# ansible-playbook -i inventory.ini -K fact.yml
+# Fer una llista de programari que està instal·lat i que no es troba
+# Primer, hi ha una llista de programari
+# Hi ha 3 llistes: la llista completa, la llista instalada i els no trobats
+# Es pot descomentar les tasques d'imprimir que es necessitin
+
+- name: Check software installation
+  hosts: hosts
+  gather_facts: true
+
+  vars:
+    software_list:
+      - debconf-utils
+      - gns3-gui
+      - gns3-server
+      - firefox
+      - iperf3
+      - libreoffice
+      - mtr
+      - postman
+      - putty
+      - packettracer
+      - snapd
+      - wireguard-tools
+      - wireshark
+
+  tasks:
+    - name: Gather the package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: List of package names
+      ansible.builtin.set_fact:
+        list_package_names: "{{ ansible_facts.packages | list }}"
+
+    # - name: Print list packages
+    #   ansible.builtin.debug:
+    #     var: list_package_names
+
+    - name: Installed package names
+      ansible.builtin.set_fact:
+        installed_package_names: "{{ list_package_names | intersect(software_list) }}"
+
+    - name: Print installed packages
+      ansible.builtin.debug:
+        var: installed_package_names
+
+    - name: Not found package names
+      ansible.builtin.set_fact:
+      # la primera llista ha de ser la més llarga , es resta la segona
+        not_found_package_names: "{{ software_list | difference(installed_package_names) }}"
+
+    - name: Print not found packages
+      ansible.builtin.debug:
+        var: not_found_package_names
+
+    # - name: Print package details from installed packages
+    #   ansible.builtin.debug:
+    #     msg: "{{ ansible_facts.packages[item] | map(attribute='name') }}"
+    #   with_items: "{{ installed_package_names }}"
+
+    # - name: Print package name from installed packages
+    #   ansible.builtin.debug:
+    #     msg: "{{ ansible_facts.packages[item] }}"
+    #   with_items: "{{ installed_package_names }}"

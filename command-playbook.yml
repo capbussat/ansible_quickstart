@@ -1,0 +1,26 @@
+# provant el modul command amb dpkg --get selection <package-name>
+# llista els paquets que no es troben amb dpkg
+---
+- name: Find packettracer
+  hosts: all
+  become: true
+  tasks:
+
+   - name: Register variable
+     ansible.builtin.command: dpkg --get-selections scoobydoo packettracer wireshark iperf3
+     changed_when: false
+     register: found_contents
+
+  #  - name: Debug
+  #    ansible.builtin.debug:
+  #     var: found_contents
+
+  #  - name: Check if hosts file contains the word "install"
+  #    ansible.builtin.debug:
+  #     msg: "Found"
+  #    when: found_contents.stdout.find("install") != -1
+
+   - name: Check if hosts file contains the word "dpkg"
+     ansible.builtin.debug:
+      var: found_contents.stderr_lines
+     when: found_contents.stderr.find("dpkg") != -1
