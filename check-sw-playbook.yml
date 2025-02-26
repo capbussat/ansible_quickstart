@@ -1,0 +1,37 @@
+- name: Check software installation and generate CSV report
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Define software list
+      ansible.builtin.set_fact:
+        software_list:
+          - { name: "packettracer", command: "dpkg --list | grep packettracer" }
+          - { name: "wireshark", command: "wireshark -v" }
+          - { name: "gns3-gui", command: "gns3 --version" }
+          - { name: "gns3-server", command: "gns3server --version" }
+          - { name: "iperf3", command: "iperf3 -v" }
+          - { name: "mtr", command: "mtr --version" }
+          - { name: "nmap", command: "nmap -v" }
+    - name: Check if software is installed
+      ansible.builtin.command: "{{ item.command }}"
+      changed_when: my_output.rc != 0 #
+      register: software_check
+      ignore_errors: true
+      loop: "{{ software_list }}"
+    - name: Prepare CSV output data
+      ansible.builtin.set_fact:
+        software_report: >
+           "{{ software_report | default([]) + [{'name': item.item.name, 'version':
+           (item.stdout_lines[0] if item.rc == 0 else 'N/A'), 'installed': 'yes'
+            if item.rc == 0 else 'no'}] }}"
+      loop: "{{ software_check.results }}"
+    - name: Create CSV file with software installation report
+      ansible.builtin.copy:
+        dest: "/tmp/software_report.csv"
+        content: |
+          Name,Version,Installed
+          {% for software in software_report %}
+          {{ software.name }},{{ software.version }},{{ software.installed }}
+          {% endfor %}
+        mode: '0644'
+      delegate_to: localhost

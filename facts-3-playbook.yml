@@ -1,0 +1,31 @@
+- name: Display system information and check installed software
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Display specific system information
+      ansible.builtin.debug:
+        msg:
+          - "Host: {{ ansible_hostname }}"
+          - "IP Address: {{ ansible_default_ipv4.address }}"
+          - "Operating System: {{ ansible_distribution }} {{
+            ansible_distribution_version }}"
+          - "Interfaces: {{ansible_interfaces}}"
+          - "IP: {{ansible_locally_reachable_ips}}"
+    - name: Check if specific software is installed
+      ansible.builtin.command: "{{ item }} -v"
+      register: software_check
+      ignore_errors: no
+      no_log: True
+      loop:
+        - packettracer
+        - wireshark
+        - gns3-gui
+        - gns3-server
+        - iperf3
+        - mtr
+        - nmap
+    - name: Display software installation results
+      ansible.builtin.debug:
+        msg: "{{ item.item }}_installed_{{ 'si' if item.rc == 0 else 'no' }}"
+      loop: "{{ software_check.results }}"
+   

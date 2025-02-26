@@ -1,0 +1,14 @@
+---
+- name: Intro to Ansible Playbooks
+  hosts: all
+  become: true
+  tasks:
+    - name: Copy file hosts with permissions
+      ansible.builtin.copy:
+        src: ./hello.txt
+        dest: /tmp/hello.txt
+        mode: "0644"
+    - name: Install apache
+      ansible.builtin.apt:
+        name: "apache2"
+        state: present

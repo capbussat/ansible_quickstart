@@ -1,0 +1,8 @@
+- name: Check whether a package called foobar is installed
+  ansible.builtin.debug:
+    msg: "{{ ansible_facts.packages['foobar'] | length }} versions of foobar are installed!"
+  when: "'foobar' in ansible_facts.packages"---
+   - name: Check whether a package called iperf3 is installed
+     ansible.builtin.debug:
+       msg: "{{ ansible_facts.packages['iperf3'] | length }} versions of iperf3 are installed!"
+     when: "'foobar' in ansible_facts.packages"

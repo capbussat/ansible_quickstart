@@ -1,0 +1,27 @@
+---
+# Aquest fitxer és facts-playbook.yml
+# Exemple d'ús:
+# ansible-playbook -i inventory.ini nginx-playbook.yml -K
+# inventory.ini conté la llista de webservers
+# -K és equivalent a  --ask-become-pass
+# -k és equivalent a --ask-pass per fer sudo.
+# Si tenim generades al control i copiades al node les claus ssh no cal demanar-lo.
+
+- name: Gather facts
+  hosts: webservers
+  gather_facts: true
+
+  # become
+  tasks:
+  # name sempre comença per majúscula
+  # FQCN prefereix ansible.builtin.app en comptes de apt
+    - name: Display facts for a host
+      ansible.builtin.debug:
+         var: hostvars[inventory_hostname]
+         verbosity: 0
+    - name: Display specific system information
+      ansible.builtin.debug:
+         msg:
+          - "Host: {{ ansible_hostname }}"
+          - "IP Address: {{ ansible_default_ipv4.address }}"
+          - "Operating System: {{ ansible_distribution }} {{ ansible_distribution_version }}"

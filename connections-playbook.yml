@@ -1,0 +1,15 @@
+---
+- name: Echo message on localhost
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    message: "Hello from Ansible playbook on localhost!"
+  tasks:
+    - name: Echo message and connection type
+      ansible.builtin.shell: " echo '{{ message }}' ; echo 'Connection type: {{ ansible_connection }}'"
+      register: echo_output
+
+    - name: Display output
+      ansible.builtin.debug:
+        msg: "{{ echo_output.stdout_lines }}"
