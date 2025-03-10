@@ -1,0 +1,24 @@
+# ansible-playbook -i inventory.ini -K user-remove-playbook.yml
+# 
+# Esborra un usuari. 
+# Usa el módul user.
+# Crea una variable, podria ser una llista
+# Demana la paraula de pas per els hosts. Ha de ser el mateix usuari contrasenya
+
+- name: Exemple esborra usuaris (caldria completar-lo)
+  hosts: all
+  become: true
+
+  vars:
+    username: bob
+
+  tasks:
+    - name: Delete the user {{ username }}
+      ansible.builtin.user:
+        name: "{{ username }}"
+        state: absent
+        remove: true
+
+# Add the user
+# state: present
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/user_module.html#examples
