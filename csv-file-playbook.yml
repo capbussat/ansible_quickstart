@@ -1,0 +1,39 @@
+# ansible-playbook -i inventory.ini csv-file-playbook.yml
+# 
+# Crea un fitxer CSV en el node.
+
+- name: Crea un fitxer CSV 
+  hosts: all
+  gather_facts: true
+
+  vars:
+    filename: "fact_report.csv"
+    do_debug: false
+
+  tasks:
+    - name: Debug
+      ansible.builtin.debug:
+        var: filename
+      when: do_debug is true
+
+    - name: Create file
+      ansible.builtin.file:
+        state: touch
+        path: "~/{{ filename }}"
+        owner: isard
+        group: isard
+        mode: "0644"
+
+    - name: Write CSV header
+      ansible.builtin.lineinfile:
+        path: "{{ filename }}"
+        line: >
+          hostname, ipv4_addresses, distribution, major_version
+
+    - name: Write CSV rows at EOF
+      ansible.builtin.lineinfile:
+        insertafter: EOF
+        path: "{{ filename }}"
+        line: >
+          {{ ansible_hostname }}, {{ ansible_all_ipv4_addresses | string }} ,
+          {{ ansible_distribution }},{{ ansible_distribution_major_version }}
