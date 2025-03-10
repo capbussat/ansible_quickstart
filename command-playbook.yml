@@ -1,31 +1,34 @@
+# ansible-playbook command-playbook.yml -K -i inventory.ini
 # Provant el modul command amb dpkg --get selection <package-name>
 # Llista els paquets que no es troben amb dpkg
-# Usa els módul debug.
-# Guarda i mostra variables. Mostra missatges condicionals.
-# Executa ansible-playbook -i inventory.ini -K command-playbook.yml
-# Demana la paraula de pas per els hosts. Ha de ser el mateix usuari contrasenya
----
-- name: Find packettracer
+# - Usa els módul debug.
+# - Guarda i mostra variables.
+# - Mostra missatges condicionals.
+
+- name: Troba els paquets
   hosts: all
   become: true
   tasks:
 
-   - name: Executa una comanda i registra o guarda pel playbook una variable
+   - name: Executa una comanda de shell
      ansible.builtin.command: dpkg --get-selections scoobydoo mtr iperf3
      # indica que la comanda no efectua canvis
      changed_when: false
+     # guarda el resultat en una variable
      register: found_contents
 
-   - name: Debug mostra la variable guardada. No cal posar cometes a la variable.
+   - name: Debug mostra la variable guardada.
      ansible.builtin.debug:
+     # No cal posar cometes a la variable.
       var: found_contents
 
-   - name: Comprova si hi ha la paraula "install" i mostra un missatge. Cal cometes.
+   - name: Comprova si hi ha la paraula "install" i mostra un missatge.
      ansible.builtin.debug:
+      # Cal cometes.
       msg: "Trobat install!"
      when: found_contents.stdout.find("install") != -1
 
-   - name: Comprova si hi ha la paraula "dpkg" i mostra la variable d'errors de sortida.
+   - name: Comprova si hi ha la paraula "dpkg" i mostra la variable d'error.
      ansible.builtin.debug:
       var: found_contents.stderr_lines
      when: found_contents.stderr.find("dpkg") != -1
