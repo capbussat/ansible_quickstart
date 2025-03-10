@@ -1,26 +1,31 @@
-# provant el modul command amb dpkg --get selection <package-name>
-# llista els paquets que no es troben amb dpkg
+# Provant el modul command amb dpkg --get selection <package-name>
+# Llista els paquets que no es troben amb dpkg
+# Usa els módul debug.
+# Guarda i mostra variables. Mostra missatges condicionals.
+# Executa ansible-playbook -i inventory.ini -K command-playbook.yml
+# Demana la paraula de pas per els hosts. Ha de ser el mateix usuari contrasenya
 ---
 - name: Find packettracer
   hosts: all
   become: true
   tasks:
 
-   - name: Register variable
-     ansible.builtin.command: dpkg --get-selections scoobydoo packettracer wireshark iperf3
+   - name: Executa una comanda i registra o guarda pel playbook una variable
+     ansible.builtin.command: dpkg --get-selections scoobydoo mtr iperf3
+     # indica que la comanda no efectua canvis
      changed_when: false
      register: found_contents
 
-  #  - name: Debug
-  #    ansible.builtin.debug:
-  #     var: found_contents
+   - name: Debug mostra la variable guardada. No cal posar cometes a la variable.
+     ansible.builtin.debug:
+      var: found_contents
 
-  #  - name: Check if hosts file contains the word "install"
-  #    ansible.builtin.debug:
-  #     msg: "Found"
-  #    when: found_contents.stdout.find("install") != -1
+   - name: Comprova si hi ha la paraula "install" i mostra un missatge. Cal cometes.
+     ansible.builtin.debug:
+      msg: "Trobat install!"
+     when: found_contents.stdout.find("install") != -1
 
-   - name: Check if hosts file contains the word "dpkg"
+   - name: Comprova si hi ha la paraula "dpkg" i mostra la variable d'errors de sortida.
      ansible.builtin.debug:
       var: found_contents.stderr_lines
      when: found_contents.stderr.find("dpkg") != -1

@@ -1,9 +1,17 @@
----
+# Compara la versió per un paquet instal·lat
+# Usa els mòduls assert, package_facts i debug.
+# Usa variables i condicionals.
+# Executa ansible-playbook -i inventory.ini -K compare-version-playbook.yml
+# Demana la paraula de pas per els hosts. Ha de ser el mateix usuari contrasenya
+
 - name: Compare version demo
   hosts: all
+  become: true
   gather_facts: false
 
   vars:
+    search_package: "iperf3"
+    compare_version: "3.16"
     current_package_version: "{{ ansible_facts.packages[search_package][0].version.split('-') | first }}"
 
   tasks:
@@ -17,7 +25,7 @@
     - name: Get package facts
       ansible.builtin.package_facts:
 
-    - name: Facts for {{ search_package }} must exist to go on
+    - name: Facts must exist to go on for {{ search_package }}
       ansible.builtin.assert:
         that: ansible_facts.packages[search_package] is defined
         msg: Please use in search_package a package name which exist on the sytem
