@@ -1,14 +1,24 @@
+# ansible-playbook -i inventory.ini -K shell-playbook.yml
+# Comprova que funciona el shell només amb el localhost
+# Usa els mòduls debug i shell.
+# Guarda i mostra una variable en el facts-playbook.yml
+# Demana la paraula de pas per els hosts. Ha de ser el mateix usuari contrasenya
 ---
-- name: Find packettracer
-  hosts: all
+- name: Echo message on localhost
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: false
+
+  vars:
+    message: "Hello from Ansible playbook on localhost!"
+
   tasks:
+    - name: Echo message and connection type
+      ansible.builtin.shell: " echo '{{ message }}' ; echo 'Connection type: {{ ansible_connection }}'"
+      changed_when: false
+      register: echo_output
 
-   - name: Register variable
-     ansible.builtin.command: dpkg --get-selections packettracer wireshark iperf3
-     changed_when: false
-     register: found_contents
-
-   - name: Check if hosts file contains the word "install"
-     ansible.builtin.debug:
-      msg: "Found packettracer"
-     when: found_contents.stdout.find("install") != -1
+    - name: Display output
+      ansible.builtin.debug:
+        msg: "{{ echo_output.stdout_lines }}"
