@@ -1,0 +1,51 @@
+# role wireshark
+# març 2025
+#
+- name: Test /opt/wireshark
+  # Se utiliza /opt/wireshark como flag para indicar que wireshark está
+  # debidamente instalado.
+  ansible.builtin.stat:
+    path: /opt/wireshark
+  register: wireshark_flag
+
+- name: Wireshark configuration
+  # let non root to capture traffic
+  # Before installing any package,
+  # this only sets the preference for the question
+  ansible.builtin.debconf:
+    name: 'wireshark-common'
+    question: 'wireshark-common/install-setuid'
+    vtype: 'boolean'
+    value: 'true'
+  become: true
+  when: not wireshark_flag.stat.exists
+
+- name: Create wireshark group
+  ansible.builtin.group:
+    name: wireshark
+    state: present
+    system: true
+  when: not wireshark_flag.stat.exists
+
+- name: Make wireshark debconf changes active
+  ansible.builtin.command:
+    cmd: "dpkg-reconfigure wireshark-common"
+  changed_when: true
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  when: not wireshark_flag.stat.exists
+
+- name: Instala Wireshark
+  ansible.builtin.apt:
+    pkg:
+      - wireshark
+  when: not wireshark_flag.stat.exists
+
+- name: Create /opt/wireshark flag
+  ansible.builtin.file:
+    path: /opt/wireshark
+    state: touch
+    owner: isard
+    group: isard
+    mode: '0644'
+  when: not wireshark_flag.stat.exists

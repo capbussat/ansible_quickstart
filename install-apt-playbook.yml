@@ -1,0 +1,52 @@
+# ansible-playbook -i inventory.ini -K install-apt-playbook.yml
+# usuari isard contrasenya pirineus
+- name: Instal·la paquets amb apt dpkg
+  hosts: hosts
+  become: true
+
+  roles:
+    - packettracer
+    - wireshark
+    - adduser
+
+  tasks:
+    - name: Add GNS3 repository into sources list
+      ansible.builtin.apt_repository:
+        repo: ppa:gns3/ppa
+
+    # - name: Add Chromium repository into sources list
+    #   ansible.builtin.apt_repository:
+    #     repo: ppa:xtradeb/apps
+
+# Alguns roles van separats packettracer, wireshark, adduser
+# Snap Instal·la firefox , chromium
+# Falta implementar el role flatpack
+    - name: Debian/Ubuntu apt
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+        state: present
+        pkg:
+          - bleachbit
+          - debconf-utils
+          - dnsutils
+          - file-roller
+          - ghex
+          - gimp
+          - gnome-disk-utility
+          - gns3-gui
+          - gns3-server
+          - htop
+          - iperf3
+          - ipcalc
+          - librecad
+          - libreoffice
+          - mtr
+          - traceroute
+          - gparted
+          - gtkterm
+          - putty
+          - tree
+          - remmina
+          - virtualbox
+          - wireguard-tools

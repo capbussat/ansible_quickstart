@@ -1,0 +1,10 @@
+# adduser roles
+- name: Afegeix un usuari
+  ansible.builtin.user:
+    name: alumne
+    create_home: true
+    groups: wireshark
+    append: true
+    expires: -1
+    # contrasenya: contrasenya
+    password: $6$kcxKIrK94VpfALEB$DPtZX5iN4nDLuPpDjzcmLnAqocQhs657iNXsqpWf96lAZjcl1Jq1Qm7iv/qA8/FbIzB5tfQJ.ytyEmsxJkNB70

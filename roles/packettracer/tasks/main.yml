@@ -1,0 +1,49 @@
+# role packettracer
+# març 2025
+#
+# No estic convençut si usar un fitxer flag és la millor manera,
+# cal assegurar-se que si es desinstal·la es treu el fitxer flag
+
+- name: Comprova el flag /opt/packettracer
+  # Se utiliza /opt/packettracer como flag para indicar que Packet Tracer está
+  # debidamente instalado.
+  ansible.builtin.stat:
+    path: /opt/packettracer
+  register: packettracer_flag
+
+- name: Copia el fitxer packettracer deb
+  ansible.builtin.copy:
+    src: /home/isard/Packet_Tracer822_amd64_signed.deb
+    dest: ./Packet_Tracer822_amd64_signed.deb
+    owner: isard
+    group: isard
+    mode: '0644'
+  when: not packettracer_flag.stat.exists
+
+- name: Opcions de packettracer acceptar EULA
+  ansible.builtin.command: >
+      echo PacketTracer   PacketTracer_822_amd64/show-eula note  | debconf-set-selections
+      echo PacketTracer   PacketTracer_822_amd64/accept-eula boolean true | debconf-set-selections
+  changed_when: true
+  when: not packettracer_flag.stat.exists
+
+- name: Instal·la packettracer
+  ansible.builtin.apt:
+    state: present
+    deb: /home/isard/Packet_Tracer822_amd64_signed.deb
+  when: not packettracer_flag.stat.exists
+
+- name: Crea un fitxer /opt/packettracer flag
+  ansible.builtin.file:
+    path: /opt/packettracer
+    state: touch
+    owner: isard
+    group: isard
+    mode: '0644'
+  when: not packettracer_flag.stat.exists
+
+- name: Treu packettracer deb packet
+  ansible.builtin.file:
+    path: ./Packet_Tracer822_amd64_signed.deb
+    state: absent
+  when: packettracer_flag.stat.exists
