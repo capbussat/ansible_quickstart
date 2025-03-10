@@ -1,0 +1,14 @@
+# ansible-playbook -i inventory.ini -K install-snaps-playbook.yml
+# usuari isard contrasenya pirineus
+- name: Per ordinadors que tenen snap
+  hosts: hosts
+  become: true
+
+  tasks:
+  # Install "foo" and "bar" snap
+    - name: Instal·la paquets amb snap
+      community.general.snap:
+        name:
+          - firefox
+          - chromium
+        state: present
