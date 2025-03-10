@@ -1,12 +1,19 @@
+# ansible-playbook -i inventory.ini -K register-variables-playbook.yml
+# Executa una comanda i mostra el resultat
+# Usa el módul debug i command-playbook.yml
+# Registra una variable i la mostra.
+# Demana la paraula de pas per els hosts. Ha de ser el mateix usuari contrasenya
 - name: Example Register Variable Playbook
   hosts: all
 
   tasks:
-  - name: Run a script and register the output as a variable
-    ansible.builtin.shell: "find hosts"
-    args:
+   - name: Run a script and register the output as a variable
+     ansible.builtin.command: "cat hosts"
+     changed_when: false
+     args:
       chdir: "/etc"
-    register: find_hosts_output
-  - name: Use the output variable of the previous task
-    ansible.builtin.debug:
-      var: find_hosts_output
+     register: mostra_hosts_output
+
+   - name: Use the output variable of the previous task
+     ansible.builtin.debug:
+      var: mostra_hosts_output['stdout_lines']
